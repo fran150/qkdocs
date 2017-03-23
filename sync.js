@@ -19,8 +19,9 @@ function Sync(actions, then) {
         then.apply(null, args);
     }
 
-    this.wait = function(name) {
+    this.wait = function() {
         var state = {
+            index: waiting.length,
             ready: false,
             arguments: []
         }
