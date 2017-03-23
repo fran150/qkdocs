@@ -2,6 +2,7 @@
 var minimist = require('minimist');
 var help = require('./help');
 var file = require('./file');
+var componentsProcessor = require('./components');
 
 var argv = minimist(process.argv.slice(2));
 
@@ -21,4 +22,11 @@ if (argv["v"] || argv["verbose"]) {
     debug = true;
 }
 
-file.readModuleConfig();
+var config = file.readModuleConfig(function(bower, main) {
+    if (main && main.namespaces) {
+
+        var components = componentsProcessor.process(main.namespaces, '');
+
+        console.log(components);
+    }
+});

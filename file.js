@@ -1,35 +1,32 @@
 var fs = require('fs');
-var Sync = require('sync');
-var Future = Sync.Future();
+var chalk = require('chalk');
+var Sync = require('./sync');
 
 // Run in a fiber
-Sync(function(){
-    function File() {
-        var self = this;
+function File() {
+    var self = this;
 
-        this.readModuleConfig = function() {
-            var bowerFile = './bower.json';
-            var quarkFile = './src/main.json';
+    this.readModuleConfig = function(callback) {
+        var bowerFile = './bower.json';
+        var quarkFile = './src/main.json';
 
-            var bowerExists;
-            var quarkExists;
+        new Sync(function(sync) {
+            var w1 = sync.wait();
+            var w2 = sync.wait();
 
-            fs.exists(bowerFile, function(exists) { existsReady(exists); });
-            fs.exists(quarkFile, function(exists) { existsReady(undefined, exists); });
+            fs.readFile(bowerFile, w1);
+            fs.readFile(quarkFile, w2);
+        }, function(err1, bowerJson, err2, mainJson) {
+            if (!err1 && !err2) {
+                var bower = JSON.parse(bowerJson);
+                var main = JSON.parse(mainJson);
 
-            existsReady(exists1, exists2) {
-
+                callback(bower, main);
+            } else {
+                console.log(chalk.bold.red("Debe ejecutar el comando en el directorio raiz de un modulo quark con los archivos bower.json y src/main.json"));
             }
-
-            if (bowerExists.result && quarkExists.result) {
-                var bowerJson = fs.readFile.future(bowerFile, 'utf8');
-                var quarkJson = fs.readFile.future(quarkFile, 'utf8');
-
-                console.log(bowerJson.result);
-                console.log(quarkJson.result);
-            }
-        }
+        });
     }
+}
 
-    module.exports = new File();
-});
+module.exports = new File();
