@@ -2,10 +2,14 @@ var fs = require('fs');
 var chalk = require('chalk');
 var merge = require('merge');
 var esprima = require('esprima');
+var escodegen = require('escodegen');
 
 var args = require('./args');
 var utils = require('./utils');
 var Sync = require('./sync');
+
+var webmodule = require('./webmodule');
+var comments = require('./comment');
 
 function ComponentsProcessor() {
     var self = this;
@@ -39,43 +43,6 @@ function ComponentsProcessor() {
         return result;
     }
 
-    function getWebModuleDependencies(node, component) {
-        component.dependencies = [];
-
-        if (node.type == "Program") {
-            var body = node.body[0];
-            if (body.type == "ExpressionStatement") {
-                if (body.expression.type == "CallExpression") {
-                    if (body.expression.callee.type == "Identifier") {
-                        if (body.expression.callee.name == "define") {
-                            var deps = body.expression.arguments[0];
-
-                            if (deps.type == "ArrayExpression") {
-                                for (var i = 0; i < deps.elements.length; i++) {
-                                    var dep = deps.elements[i];
-
-                                    component.dependencies.push(dep.value);
-                                }
-                            }
-
-                            var moduleContent = body.expression.arguments[1];
-
-                            if (moduleContent.type == "FunctionExpression") {
-                                if (moduleContent.body.type == "BlockStatement") {
-                                    if (moduleContent.body.body[0].type == "FunctionDeclaration") {
-                                        for (var i = 0; i < moduleContent.body.body[0].body.body.length; i++) {
-                                            var expr = moduleContent.body.body[0].body.body[i];
-                                            console.log(expr.type);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     this.process = function(main, result, callback) {
         var tag = "";
@@ -109,9 +76,16 @@ function ComponentsProcessor() {
                 }
 
                 fs.readFile("src/" + component.path + ".js", "utf8", function(err, content) {
-                    var parsed = esprima.parse(content);
+                    var ast = esprima.parse(content, { range: true, tokens: true, comment: true });
+                    ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
 
-                    getWebModuleDependencies(parsed, component);
+                    var node = webmodule.process(ast, component);
+
+                    var fn = node[0].body.body;
+
+                    for (var i = 0; i < fn.length; i++) {
+                        var docs = comments.process(fn[i], component);
+                    }
 
                     w();
                 });

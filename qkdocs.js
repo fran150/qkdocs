@@ -17,6 +17,6 @@ var config = file.readModuleConfig(function(bower, main) {
 
     result = moduleProcessor.process(bower, main, result);
     componentsProcessor.process(main, result, function(result) {
-        console.log(JSON.stringify(result, null, 4));
+        //console.log(JSON.stringify(result, null, 4));
     });
 });
