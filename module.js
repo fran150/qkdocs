@@ -23,8 +23,6 @@ function ModuleProcessor() {
         result.license = bower.license;
 
         result.prefix = main.prefix;
-
-        return result;
     }
 }
 

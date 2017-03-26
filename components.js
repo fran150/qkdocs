@@ -9,7 +9,7 @@ var utils = require('./utils');
 var Sync = require('./sync');
 
 var webmodule = require('./webmodule');
-var comments = require('./comment');
+var webModuleClass = require('./class');
 
 function ComponentsProcessor() {
     var self = this;
@@ -81,11 +81,7 @@ function ComponentsProcessor() {
 
                     var node = webmodule.process(ast, component);
 
-                    var fn = node[0].body.body;
-
-                    for (var i = 0; i < fn.length; i++) {
-                        var docs = comments.process(fn[i], component);
-                    }
+                    webModuleClass.process(node, component);
 
                     w();
                 });
