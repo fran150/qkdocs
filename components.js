@@ -10,6 +10,7 @@ var Sync = require('./sync');
 
 var webmodule = require('./webmodule');
 var webModuleClass = require('./class');
+var comments = require('./comment');
 
 function ComponentsProcessor() {
     var self = this;
@@ -72,12 +73,17 @@ function ComponentsProcessor() {
                 let component = components[tag];
 
                 if (args.flags.verbose) {
-                    console.log(chalk.bold.white("Reading File %s"), chalk.white(component.path));
+                    console.log(chalk.white("Processing component %s"), chalk.bold.blue(tag));
+                    console.log(chalk.white("  File: %s"), chalk.green(component.path));
                 }
 
                 fs.readFile("src/" + component.path + ".js", "utf8", function(err, content) {
                     var ast = esprima.parse(content, { range: true, tokens: true, comment: true });
                     ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
+
+                    if (ast.leadingComments) {
+                        comments.process(ast, component);
+                    }
 
                     var node = webmodule.process(ast, component);
 

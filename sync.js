@@ -40,6 +40,7 @@ function Sync(actions, then) {
     }
 
     actions(self);
+    checkReady();
 }
 
 module.exports = Sync;

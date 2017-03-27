@@ -1,10 +1,13 @@
 var chalk = require('chalk');
 var args = require('./args');
+var processMemberExpression = require('./memberExpression');
 
 function CommentsProcessor() {
     var self = this;
 
-    this.process = function(node, result) {
+    this.process = function(node, result, rootName) {
+        rootName = rootName || "";
+
         if (node.leadingComments) {
             if (node.leadingComments[0].type == "Block") {
                 if (node.leadingComments[0].value.startsWith("*")) {
@@ -13,46 +16,58 @@ function CommentsProcessor() {
                     // Get all commands in comment
                     var commands = comment.match(/\@[\w]+/g);
 
-                    // For each command in comment
-                    for (var i = 0; i < commands.length; i++) {
-                        // Get the command string
-                        var command = commands[i];
+                    if (commands && commands != null) {
 
-                        // Get the start position of the command text
-                        var start = comment.indexOf(command);
-                        var end = undefined;
+                        // For each command in comment
+                        for (var i = 0; i < commands.length; i++) {
+                            // Get the command string
+                            var command = commands[i];
 
-                        // If there is another command on same comment get it's position if not
-                        // scan to the end of comment
-                        if ((i + 1) < commands.length) {
-                            end = comment.indexOf(commands[i + 1], start + 1);
-                        }
+                            // Get the start position of the command text
+                            var start = comment.indexOf(command);
+                            var end = undefined;
 
-                        // Get the full command string using the obtained positions
-                        var commandStr = comment.slice(start, end);
-                        // Delete the found command string from comment to avoid reprocessing
-                        comment = comment.replace(commandStr, "");
-                        // Delete the command from the command string
-                        commandStr = commandStr.replace(command, "");
-                        // Trim the command string
-                        commandStr = commandStr.trim();
+                            // If there is another command on same comment get it's position if not
+                            // scan to the end of comment
+                            if ((i + 1) < commands.length) {
+                                end = comment.indexOf(commands[i + 1], start + 1);
+                            }
 
-                        switch (command.toLowerCase()) {
-                            case "@observable":
-                                self.commandObservable(commandStr, node, result);
-                                break;
-                            case "@property":
-                                result = self.commandProperty(commandStr, node, result);
-                                break;
-                            case "@method":
-                                result = self.commandMethod(commandStr, node, result);
-                                break;
-                            case "@param":
-                                self.commandParam(commandStr, node, result);
-                                break;
-                            case "@returns":
-                                self.commandReturns(commandStr, node, result);
-                                break;
+                            // Get the full command string using the obtained positions
+                            var commandStr = comment.slice(start, end);
+                            // Delete the found command string from comment to avoid reprocessing
+                            comment = comment.replace(commandStr, "");
+                            // Delete the command from the command string
+                            commandStr = commandStr.replace(command, "");
+                            // Trim the command string
+                            commandStr = commandStr.trim();
+
+                            switch (command.toLowerCase()) {
+                                case "@component":
+                                    self.commandComponent(commandStr, node, result);
+                                    break;
+                                case "@service":
+                                    self.commandService(commandStr, node, result);
+                                    break;
+                                case "@observable":
+                                    self.commandObservable(commandStr, node, result);
+                                    break;
+                                case "@property":
+                                    result = self.commandProperty(commandStr, node, rootName, result);
+                                    break;
+                                case "@method":
+                                    result = self.commandMethod(commandStr, node, rootName, result);
+                                    break;
+                                case "@param":
+                                    self.commandParam(commandStr, node, result);
+                                    break;
+                                case "@returns":
+                                    self.commandReturns(commandStr, node, result);
+                                    break;
+                                case "@parameter":
+                                    result = self.commandParameter(commandStr, node, result);
+                                    break;
+                            }
                         }
                     }
                 }
@@ -67,71 +82,85 @@ function CommentsProcessor() {
         return result;
     }
 
-    function processMemberExpression(node) {
-        var name = "";
-
-        if (node.object.type == "ThisExpression") {
-            name += "this";
+    this.commandProperty = function(command, node, rootName, result) {
+        if (!result.properties) {
+            result.properties = {};
         }
 
-        if (node.object.type == "MemberExpression") {
-            name += processMemberExpression(node.object);
+        let property = {
+            name: rootName
+        };
+
+        var match;
+
+        match = command.match(/(\{[\s\S]+\})/);
+
+        if (match && match.length > 0) {
+            command = command.replace(match[0], "");
+            property.name = match[0].replace("{", "").replace("}", "");
         }
 
-        if (node.property.type == "Identifier") {
-            name += "." + node.property.name;
+        match = command.match(/(\w+)/);
+        if (match && match.length > 0) {
+            command = command.replace(match, "");
+            property.type = match[0];
         }
 
-        return name;
+        property.description = command.trim();
+
+        result.properties[rootName] = property;
+        return property;
     }
 
-    this.commandProperty = function(command, node, result) {
-        if (node.type == "ExpressionStatement") {
-            if (node.expression.type == "AssignmentExpression") {
-                if (node.expression.left.type == "MemberExpression") {
-                    if (!result.properties) {
-                        result.properties = {};
-                    }
-
-                    let propertyName = processMemberExpression(node.expression.left);
-                    let property = {
-                        name: propertyName
-                    };
-
-                    let type = command.match(/(\w+)?/);
-                    command = command.replace(type[0], "");
-
-                    property.type = type[0];
-                    property.description = command.trim();
-
-                    result.properties[propertyName] = property;
-                    return property;
-                }
-            }
+    this.commandMethod = function(command, node, rootName, result) {
+        if (!result.methods) {
+            result.methods = {};
         }
 
-        return result;
+        let method = {
+            name: rootName
+        };
+
+        var match = command.match(/(\{[\s\S]+\})/);
+
+        if (match && match.length > 0) {
+            command = command.replace(match[0], "");
+            method.name = match[0].replace("{", "").replace("}", "");
+        }
+
+        method.description = command.trim();
+
+        result.methods[rootName] = method;
+
+        return method;
     }
 
-    this.commandMethod = function(command, node, result) {
-        if (node.type == "ExpressionStatement") {
-            if (node.expression.type == "AssignmentExpression") {
-                if (node.expression.left.type == "MemberExpression") {
-                    if (!result.methods) {
-                        result.methods = {};
-                    }
-
-                    let methodName = processMemberExpression(node.expression.left);
-                    let method = {
-                        name: methodName
-                    };
-
-                    method.description = command.trim();
-
-                    result.methods[methodName] = method;
-                    return method;
-                }
+    this.commandParameter = function(command, node, result) {
+        if (node.type == "Property") {
+            if (!result.parameters) {
+                result.parameters = {};
             }
+
+            let parameterName;
+
+            if (node.key.type == "MemberExpression") {
+                parameterName = processMemberExpression(node.expression.left);
+            } else if (node.key.type == "Identifier") {
+                parameterName = node.key.name;
+            }
+
+            let parameter = {
+                name: parameterName
+            };
+
+            let type = command.match(/(\w+)?/);
+            command = command.replace(type[0], "");
+
+            parameter.type = type[0];
+            parameter.description = command.trim();
+
+            result.parameters[parameterName] = parameter;
+            return parameter;
         }
 
         return result;
@@ -169,6 +198,13 @@ function CommentsProcessor() {
         result.returns = returns;
     }
 
+    this.commandComponent = function(command, node, result) {
+        result.description = command.trim();
+    }
+
+    this.commandService = function(command, node, result) {
+        result.description = command.trim();
+    }
 
 }
 
