@@ -55,6 +55,9 @@ function CommentsProcessor() {
                                 case "@observable":
                                     self.commandObservable(commandStr, node, result);
                                     break;
+                                case "@computed":
+                                    self.commandComputed(commandStr, node, result);
+                                    break;
                                 case "@property":
                                     result = self.commandProperty(commandStr, node, rootName, result);
                                     break;
@@ -85,6 +88,11 @@ function CommentsProcessor() {
 
     this.commandObservable = function(command, node, result) {
         result.isObservable = true;
+        return result;
+    }
+
+    this.commandComputed = function(command, node, result) {
+        result.isComputed = true;
         return result;
     }
 
