@@ -49,6 +49,9 @@ function CommentsProcessor() {
                                 case "@service":
                                     self.commandService(commandStr, node, result);
                                     break;
+                                case "@binding":
+                                    self.commandBinding(commandStr, node, result);
+                                    break;
                                 case "@observable":
                                     self.commandObservable(commandStr, node, result);
                                     break;
@@ -66,6 +69,9 @@ function CommentsProcessor() {
                                     break;
                                 case "@parameter":
                                     result = self.commandParameter(commandStr, node, result);
+                                    break;
+                                case "@exposed":
+                                    result = self.commandExposed(commandStr, node, result);
                                     break;
                             }
                         }
@@ -153,7 +159,7 @@ function CommentsProcessor() {
                 name: parameterName
             };
 
-            let type = command.match(/(\w+)?/);
+            let type = command.match(/(\w+)/);
             command = command.replace(type[0], "");
 
             parameter.type = type[0];
@@ -167,10 +173,10 @@ function CommentsProcessor() {
     }
 
     this.commandParam = function(command, node, result) {
-        let name = command.match(/(\w+)?/);
+        let name = command.match(/(\w+)/);
         command = command.replace(name[0], "").trim();
 
-        let type = command.match(/(\w+)?/);
+        let type = command.match(/(\w+)/);
         command = command.replace(type[0], "").trim();
 
         if (!result.params) {
@@ -187,7 +193,7 @@ function CommentsProcessor() {
     }
 
     this.commandReturns = function(command, node, result) {
-        let type = command.match(/(\w+)?/);
+        let type = command.match(/(\w+)/);
         command = command.replace(type[0], "").trim();
 
         var returns = {
@@ -204,6 +210,27 @@ function CommentsProcessor() {
 
     this.commandService = function(command, node, result) {
         result.description = command.trim();
+    }
+
+    this.commandBinding = function(command, node, result) {
+        let match = command.match(/(\w+)/);
+        command = command.replace(match[0], "").trim();
+
+        result.name = match[0];
+        result.description = command.trim();
+    }
+
+    this.commandExposed = function(command, node, result) {
+        var cmd = command.trim();
+        if (cmd == "") {
+            if (result.name) {
+                result.exposed = result.name;
+            } else {
+                result.exposed = true;
+            }
+        } else {
+            result.exposed = cmd;
+        }
     }
 
 }

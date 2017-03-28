@@ -7,8 +7,8 @@ var args = require('./args');
 
 var moduleProcessor = require('./module');
 var componentsProcessor = require('./components');
-
 var servicesProcessor = require('./services');
+var bindingsProcessor = require('./bindings');
 
 
 if (args.flags.verbose) {
@@ -22,7 +22,9 @@ var config = file.readModuleConfig(function(bower, main) {
 
     componentsProcessor.process(main, result, function(result) {
         servicesProcessor.process(main, result, function(result) {
-            console.log(JSON.stringify(result, null, 4));
+            bindingsProcessor.process(main, result, function(result) {
+                console.log(JSON.stringify(result, null, 4));
+            });
         });
     });
 });
