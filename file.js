@@ -1,7 +1,7 @@
 var fs = require('fs');
 var chalk = require('chalk');
-var args = require('./args');
 var Sync = require('./sync');
+var log = require('./log');
 
 // Run in a fiber
 function File() {
@@ -15,9 +15,8 @@ function File() {
             var w1 = sync.wait();
             var w2 = sync.wait();
 
-            if (args.flags.verbose) {
-                console.log(chalk.bold.white("Reading bower.json and src/main.json"));
-            }
+            log.tab();
+            log.verbose("Reading bower.json and src/main.json");
 
             fs.readFile(bowerFile, 'utf8', w1);
             fs.readFile(quarkFile, 'utf8', w2);
@@ -26,16 +25,14 @@ function File() {
                 var bower = JSON.parse(bowerJson);
                 var main = JSON.parse(mainJson);
 
-                if (args.flags.debug) {
-                    console.log(chalk.bold.yellow("\nbower.json contents:"))
-                    console.log(chalk.yellow(JSON.stringify(bower, null, 4)));
-                    console.log(chalk.bold.yellow("\nsrc/main.json contents:"))
-                    console.log(chalk.yellow(JSON.stringify(main, null, 4)));
-                }
+                log.debug("bower.json read!");
+                log.debug("src/main.json read!");
+
+                log.untab();
 
                 callback(bower, main);
             } else {
-                console.log(chalk.bold.red("Debe ejecutar el comando en el directorio raiz de un modulo quark con los archivos bower.json y src/main.json"));
+                log.error("Debe ejecutar el comando en el directorio raiz de un modulo quark con los archivos bower.json y src/main.json");
             }
         });
     }

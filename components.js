@@ -4,7 +4,7 @@ var merge = require('merge');
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 
-var args = require('./args');
+var log = require('./log');
 var utils = require('./utils');
 var Sync = require('./sync');
 
@@ -48,13 +48,15 @@ function ComponentsProcessor() {
     this.process = function(main, result, callback) {
         var tag = "";
 
+        log.tab();
+
         if (main.prefix) {
             tag = main.prefix;
         }
 
-        if (args.flags.verbose) {
-            console.log(chalk.bold.white("Leyendo ubicación de componentes..."));
-        }
+        log.verbose("Reading components location...");
+
+        log.tab();
 
         var components = {};
 
@@ -67,17 +69,18 @@ function ComponentsProcessor() {
         }
 
         new Sync(function(sync) {
-            for (var tag in components) {
+            for (let tag in components) {
                 let w = sync.wait();
 
                 let component = components[tag];
+                let path = component.path;
 
-                if (args.flags.verbose) {
-                    console.log(chalk.white("Processing component %s"), chalk.bold.blue(tag));
-                    console.log(chalk.white("  File: %s"), chalk.green(component.path));
-                }
+                log.verbose("Reading component " + tag);
+                log.verbose(" (file: " + path + ")");
 
-                fs.readFile("src/" + component.path + ".js", "utf8", function(err, content) {
+                fs.readFile("src/" + path + ".js", "utf8", function(err, content) {
+                    log.verbose("Parsing file: " + path);
+
                     var ast = esprima.parse(content, { range: true, tokens: true, comment: true });
                     ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
 
@@ -93,6 +96,8 @@ function ComponentsProcessor() {
                 });
             }
         }, function() {
+            log.untab();
+            log.untab();
             result.components = components;
             callback(result);
         });

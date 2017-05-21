@@ -1,19 +1,19 @@
 
 var chalk = require('chalk');
-var args = require('./args');
+var log = require('./log');
 
 function ModuleProcessor() {
     var self = this;
 
     this.process = function(bower, main, result) {
-        if (args.flags.verbose) {
-            console.log(chalk.bold.white("Processing Module Data..."));
-        }
+        log.tab();
+
+        log.verbose("Processing Module Data...");
 
         if (bower.name) {
             result.name = bower.name;
         } else {
-            console.log(chalk.bold.red("Must specify a module name in bower.json"));
+            log.error("Must specify a module name in bower.json");
         }
 
         result.description = bower.description;
@@ -21,8 +21,14 @@ function ModuleProcessor() {
         result.keywords = bower.keywords;
         result.authors = bower.authors;
         result.license = bower.license;
+        result.version = bower.version;
 
         result.prefix = main.prefix;
+
+        log.debug("Data Found:");
+        log.debug(JSON.stringify(result, null, 4));
+
+        log.untab();
     }
 }
 
