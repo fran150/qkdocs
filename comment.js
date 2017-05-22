@@ -8,6 +8,8 @@ function CommentsProcessor() {
     this.process = function(node, result, rootName) {
         rootName = rootName || "";
 
+        var baseResult = result;
+
         if (node.leadingComments) {
             if (node.leadingComments[0].type == "Block") {
                 if (node.leadingComments[0].value.startsWith("*")) {
@@ -76,6 +78,9 @@ function CommentsProcessor() {
                                 case "@exposed":
                                     result = self.commandExposed(commandStr, node, result);
                                     break;
+                                case "@end":
+                                    result = baseResult;
+                                    break;
                             }
                         }
                     }
@@ -122,7 +127,7 @@ function CommentsProcessor() {
 
         property.description = command.trim();
 
-        result.properties[rootName] = property;
+        result.properties[property.name] = property;
         return property;
     }
 
@@ -144,7 +149,7 @@ function CommentsProcessor() {
 
         method.description = command.trim();
 
-        result.methods[rootName] = method;
+        result.methods[method.name] = method;
 
         return method;
     }
@@ -167,13 +172,23 @@ function CommentsProcessor() {
                 name: parameterName
             };
 
+            var match;
+
+            match = command.match(/(\{[\s\S]+\})/);
+
+            if (match && match.length > 0) {
+                command = command.replace(match[0], "");
+                parameter.name = match[0].replace("{", "").replace("}", "");
+            }
+
+
             let type = command.match(/(\w+)/);
             command = command.replace(type[0], "");
 
             parameter.type = type[0];
             parameter.description = command.trim();
 
-            result.parameters[parameterName] = parameter;
+            result.parameters[parameter.name] = parameter;
             return parameter;
         }
 
