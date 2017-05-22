@@ -3,7 +3,7 @@ var chalk = require('chalk');
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 
-var args = require('./args');
+var log = require('./log');
 var utils = require('./utils');
 var Sync = require('./sync');
 
@@ -17,9 +17,11 @@ function BindingsProcessor() {
     this.process = function(main, result, callback) {
         var name = "";
 
-        if (args.flags.verbose) {
-            console.log(chalk.bold.white("Check if \"Bindings\" folder exists..."));
-        }
+        log.tab();
+
+        log.verbose("Check if \"Bindings\" folder exists...");
+
+        log.tab();
 
         var bindings = {};
 
@@ -28,18 +30,13 @@ function BindingsProcessor() {
             fs.stat('src/bindings', function(err, status) {
                 if (!err) {
                     if (status.isDirectory()) {
-                        if (args.flags.verbose) {
-                            console.log(chalk.bold.white("  \"bindings\" folder found..."));
-                        }
+                        log.verbose("\"bindings\" folder found...");
 
                         let d = sync.wait();
                         fs.readdir('src/bindings', function(errDir, filenames) {
                             if (!errDir) {
                                 filenames.forEach(function(filename) {
-                                    if (args.flags.verbose) {
-                                        console.log(chalk.white("Processing binding..."));
-                                        console.log(chalk.white("  File: %s"), chalk.blue(filename));
-                                    }
+                                    log.verbose("Processing binding (file : " + filename + ")");
 
                                     let w = sync.wait();
 
@@ -72,6 +69,9 @@ function BindingsProcessor() {
                 f();
             });
         }, function() {
+            log.untab();
+            log.untab();
+
             result.bindings = bindings;
             callback(result);
         });

@@ -1,0 +1,93 @@
+{
+	"type": "Collection",
+	"properties": {
+		"name": {
+			"name": "name",
+			"type": "string",
+			"typeLabel": "string",
+			"required": true,
+			"id": "name",
+			"order": 0
+		},
+		"description": {
+			"name": "description",
+			"type": "string",
+			"typeLabel": "string",
+			"required": false,
+			"id": "description",
+			"order": 1
+		},
+		"dependencies": {
+			"name": "dependencies",
+			"type": "object",
+			"typeLabel": "object",
+			"required": false,
+			"id": "dependencies",
+			"order": 2
+		},
+		"keywords": {
+			"name": "keywords",
+			"type": "array",
+			"typeLabel": "array",
+			"required": false,
+			"id": "keywords",
+			"order": 3
+		},
+		"authors": {
+			"name": "authors",
+			"type": "array",
+			"typeLabel": "array",
+			"required": false,
+			"id": "authors",
+			"order": 4
+		},
+		"license": {
+			"name": "license",
+			"type": "string",
+			"typeLabel": "string",
+			"required": false,
+			"id": "license",
+			"order": 5
+		},
+		"version": {
+			"name": "version",
+			"type": "string",
+			"typeLabel": "string",
+			"required": false,
+			"id": "version",
+			"order": 6
+		},
+		"prefix": {
+			"name": "prefix",
+			"type": "string",
+			"typeLabel": "string",
+			"required": false,
+			"id": "prefix",
+			"order": 7
+		},
+		"components": {
+			"name": "components",
+			"type": "string",
+			"typeLabel": "string",
+			"required": false,
+			"id": "components",
+			"order": 8
+		},
+		"services": {
+			"name": "services",
+			"type": "string",
+			"typeLabel": "string",
+			"required": false,
+			"id": "services",
+			"order": 9
+		},
+		"bindings": {
+			"name": "bindings",
+			"type": "string",
+			"typeLabel": "string",
+			"required": false,
+			"id": "bindings",
+			"order": 10
+		}
+	}
+}

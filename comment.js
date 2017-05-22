@@ -1,5 +1,5 @@
 var chalk = require('chalk');
-var args = require('./args');
+var log = require('./log');
 var processMemberExpression = require('./memberExpression');
 
 function CommentsProcessor() {
@@ -8,7 +8,11 @@ function CommentsProcessor() {
     this.process = function(node, result, rootName) {
         rootName = rootName || "";
 
+<<<<<<< HEAD
         var baseResult = result;
+=======
+        log.tab();
+>>>>>>> origin/master
 
         if (node.leadingComments) {
             if (node.leadingComments[0].type == "Block") {
@@ -88,15 +92,19 @@ function CommentsProcessor() {
             }
         }
 
+        log.untab();
+
         return result;
     }
 
     this.commandObservable = function(command, node, result) {
+        log.debug("Found command Observable");
         result.isObservable = true;
         return result;
     }
 
     this.commandComputed = function(command, node, result) {
+        log.debug("Found command Computed");
         result.isComputed = true;
         return result;
     }
@@ -127,7 +135,14 @@ function CommentsProcessor() {
 
         property.description = command.trim();
 
+<<<<<<< HEAD
         result.properties[property.name] = property;
+=======
+        result.properties[rootName] = property;
+
+        log.debug("Found command Property: " + rootName);
+
+>>>>>>> origin/master
         return property;
     }
 
@@ -150,6 +165,8 @@ function CommentsProcessor() {
         method.description = command.trim();
 
         result.methods[method.name] = method;
+
+        log.debug("Found command Method: " + rootName);
 
         return method;
     }
@@ -188,7 +205,14 @@ function CommentsProcessor() {
             parameter.type = type[0];
             parameter.description = command.trim();
 
+<<<<<<< HEAD
             result.parameters[parameter.name] = parameter;
+=======
+            result.parameters[parameterName] = parameter;
+
+            log.debug("Found command Parameter: " + parameterName);
+
+>>>>>>> origin/master
             return parameter;
         }
 
@@ -212,6 +236,8 @@ function CommentsProcessor() {
             description: command.trim()
         };
 
+        log.debug("Found command param: " + param.name);
+
         result.params[param.name] = param;
     }
 
@@ -224,15 +250,19 @@ function CommentsProcessor() {
             description: command.trim()
         };
 
+        log.debug("Found command returns: " + returns.type);
+
         result.returns = returns;
     }
 
     this.commandComponent = function(command, node, result) {
         result.description = command.trim();
+        log.debug("Found command Component");
     }
 
     this.commandService = function(command, node, result) {
         result.description = command.trim();
+        log.debug("Found command Service");
     }
 
     this.commandBinding = function(command, node, result) {
@@ -241,6 +271,8 @@ function CommentsProcessor() {
 
         result.name = match[0];
         result.description = command.trim();
+
+        log.debug("Found command Binding");
     }
 
     this.commandExposed = function(command, node, result) {
@@ -254,6 +286,8 @@ function CommentsProcessor() {
         } else {
             result.exposed = cmd;
         }
+
+        log.debug("Found command Exposed");
     }
 
 }

@@ -3,7 +3,7 @@ var chalk = require('chalk');
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 
-var args = require('./args');
+var log = require('./log');
 var utils = require('./utils');
 var Sync = require('./sync');
 
@@ -17,9 +17,11 @@ function ServicesProcessor() {
     this.process = function(main, result, callback) {
         var name = "";
 
-        if (args.flags.verbose) {
-            console.log(chalk.bold.white("Leyendo ubicación de servicios..."));
-        }
+        log.tab();
+
+        log.verbose("Reading services location...");
+
+        log.tab();
 
         var services = {};
 
@@ -43,10 +45,8 @@ function ServicesProcessor() {
 
                 let service = services[name];
 
-                if (args.flags.verbose) {
-                    console.log(chalk.white("Processing service %s"), chalk.bold.cyan(name));
-                    console.log(chalk.white("  File: %s"), chalk.magenta(service.path));
-                }
+                log.verbose("Processing service " + name);
+                log.verbose(" (File: " + service.path + ")");
 
                 fs.readFile("src/" + service.path + ".service.js", "utf8", function(err, content) {
                     var ast = esprima.parse(content, { range: true, tokens: true, comment: true });
@@ -64,6 +64,9 @@ function ServicesProcessor() {
                 });
             }
         }, function() {
+            log.untab();
+            log.untab();
+
             result.services = services;
             callback(result);
         });

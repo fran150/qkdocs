@@ -20,6 +20,4 @@ if (argv["v"] || argv["verbose"]) {
     flags.verbose = true;
 }
 
-module.exports = {
-    flags: flags
-};
+module.exports = flags;
