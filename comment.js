@@ -48,6 +48,9 @@ function CommentsProcessor() {
                                 case "@component":
                                     self.commandComponent(commandStr, node, result);
                                     break;
+                                case "@allowContent":
+                                    self.commandAllowContent(commandStr, node, result);
+                                    break;
                                 case "@service":
                                     self.commandService(commandStr, node, result);
                                     break;
@@ -78,6 +81,9 @@ function CommentsProcessor() {
                                 case "@exposed":
                                     result = self.commandExposed(commandStr, node, result);
                                     break;
+                                case "@signature":
+                                    result = self.commandSignature(commandStr, node, result);
+                                    break;
                             }
                         }
                     }
@@ -93,6 +99,12 @@ function CommentsProcessor() {
     this.commandObservable = function(command, node, result) {
         log.debug("Found command Observable");
         result.isObservable = true;
+        return result;
+    }
+
+    this.commandAllowContent = function(command, node, result) {
+        log.debug("Found command AllowContent");
+        result.allowContent = true;
         return result;
     }
 
@@ -214,6 +226,12 @@ function CommentsProcessor() {
         log.debug("Found command param: " + param.name);
 
         result.params[param.name] = param;
+    }
+
+    this.commandSignature = function(command, node, result) {
+        log.debug("Found command signature: " + command.trim());
+
+        result.signature = command.trim();
     }
 
     this.commandReturns = function(command, node, result) {
