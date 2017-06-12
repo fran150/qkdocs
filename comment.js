@@ -50,14 +50,14 @@ function CommentsProcessor() {
                                 case "@component":
                                     self.commandComponent(commandStr, node, result);
                                     break;
-                                case "@allowContent":
+                                case "@allowcontent":
                                     self.commandAllowContent(commandStr, node, result);
                                     break;
                                 case "@service":
                                     self.commandService(commandStr, node, result);
                                     break;
                                 case "@binding":
-                                    self.commandBinding(commandStr, node, result);
+                                    result = self.commandBinding(commandStr, node, result);
                                     break;
                                 case "@observable":
                                     self.commandObservable(commandStr, node, result);
@@ -81,10 +81,10 @@ function CommentsProcessor() {
                                     result = self.commandParameter(commandStr, node, result);
                                     break;
                                 case "@exposed":
-                                    result = self.commandExposed(commandStr, node, result);
+                                    self.commandExposed(commandStr, node, result);
                                     break;
                                 case "@signature":
-                                    result = self.commandSignature(commandStr, node, result);
+                                    self.commandSignature(commandStr, node, result);
                                     break;
                                 case "@end":
                                     result = baseResult;
@@ -104,19 +104,16 @@ function CommentsProcessor() {
     this.commandObservable = function(command, node, result) {
         log.debug("Found command Observable");
         result.isObservable = true;
-        return result;
     }
 
     this.commandAllowContent = function(command, node, result) {
         log.debug("Found command AllowContent");
         result.allowContent = true;
-        return result;
     }
 
     this.commandComputed = function(command, node, result) {
         log.debug("Found command Computed");
         result.isComputed = true;
-        return result;
     }
 
     this.commandProperty = function(command, node, rootName, result) {
@@ -281,6 +278,8 @@ function CommentsProcessor() {
         result.description = command.trim();
 
         log.debug("Found command Binding");
+
+        return result;
     }
 
     this.commandExposed = function(command, node, result) {
