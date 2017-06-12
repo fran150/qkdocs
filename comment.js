@@ -8,6 +8,8 @@ function CommentsProcessor() {
     this.process = function(node, result, rootName) {
         rootName = rootName || "";
 
+        var baseResult = result;
+
         log.tab();
 
         if (node.leadingComments) {
@@ -83,6 +85,9 @@ function CommentsProcessor() {
                                     break;
                                 case "@signature":
                                     result = self.commandSignature(commandStr, node, result);
+                                    break;
+                                case "@end":
+                                    result = baseResult;
                                     break;
                             }
                         }
@@ -165,7 +170,7 @@ function CommentsProcessor() {
 
         method.description = command.trim();
 
-        result.methods[rootName] = method;
+        result.methods[method.name] = method;
 
         log.debug("Found command Method: " + rootName);
 
@@ -189,6 +194,16 @@ function CommentsProcessor() {
             let parameter = {
                 name: parameterName
             };
+
+            var match;
+
+            match = command.match(/(\{[\s\S]+\})/);
+
+            if (match && match.length > 0) {
+                command = command.replace(match[0], "");
+                parameter.name = match[0].replace("{", "").replace("}", "");
+            }
+
 
             let type = command.match(/(\w+)/);
             command = command.replace(type[0], "");
