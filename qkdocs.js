@@ -11,6 +11,7 @@ var moduleProcessor = require('./module');
 var componentsProcessor = require('./components');
 var servicesProcessor = require('./services');
 var bindingsProcessor = require('./bindings');
+var behavioursProcessor = require('./behaviours');
 
 log.verbose("Running in verbose mode...");
 log.debug("Running in debug mode...");
@@ -44,27 +45,28 @@ var config = file.readModuleConfig(function(bower, main) {
     componentsProcessor.process(main, result, function(result) {
         servicesProcessor.process(main, result, function(result) {
             bindingsProcessor.process(main, result, function(result) {
+                behavioursProcessor.process(main, result, function(result) {
+                    log.info("  Processed " + count(result.components) + " components");
+                    log.info("  Processed " + count(result.services) + " services");
+                    log.info("  Processed " + count(result.bindings) + " bindings");
 
-                log.info("  Processed " + count(result.components) + " components");
-                log.info("  Processed " + count(result.services) + " services");
-                log.info("  Processed " + count(result.bindings) + " bindings");
+                    result.components = JSON.stringify(result.components);
+                    result.services = JSON.stringify(result.services);
+                    result.bindings = JSON.stringify(result.bindings);
 
-                result.components = JSON.stringify(result.components);
-                result.services = JSON.stringify(result.services);
-                result.bindings = JSON.stringify(result.bindings);
+                    rest.getDoc(result.name, function(err, data) {
+                        data = JSON.parse(data);
 
-                rest.getDoc(result.name, function(err, data) {
-                    data = JSON.parse(data);
-
-                    if (data.length > 0) {
-                        rest.updateDoc(data[0].id, JSON.stringify(result), function(err, data) {
-                            finish(err, "Updated", data);
-                        });
-                    } else {
-                        rest.saveDoc(JSON.stringify(result), function(err, data) {
-                            finish(err, "Saved", data);
-                        });
-                    }
+                        if (data.length > 0) {
+                            rest.updateDoc(data[0].id, JSON.stringify(result), function(err, data) {
+                                finish(err, "Updated", data);
+                            });
+                        } else {
+                            rest.saveDoc(JSON.stringify(result), function(err, data) {
+                                finish(err, "Saved", data);
+                            });
+                        }
+                    });
                 });
             });
         });

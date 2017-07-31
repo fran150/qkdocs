@@ -59,6 +59,9 @@ function CommentsProcessor() {
                                 case "@binding":
                                     result = self.commandBinding(commandStr, node, result);
                                     break;
+                                case "@behaviour":
+                                    result = self.commandBehaviour(commandStr, node, result);
+                                    break;
                                 case "@observable":
                                     self.commandObservable(commandStr, node, result);
                                     break;
@@ -281,6 +284,19 @@ function CommentsProcessor() {
 
         return result;
     }
+
+    this.commandBehaviour = function(command, node, result) {
+        let match = command.match(/(\w+)/);
+        command = command.replace(match[0], "").trim();
+
+        result.name = match[0];
+        result.description = command.trim();
+
+        log.debug("Found command Behaviour");
+
+        return result;
+    }
+
 
     this.commandExposed = function(command, node, result) {
         var cmd = command.trim();
