@@ -88,6 +88,14 @@
 			"required": false,
 			"id": "bindings",
 			"order": 10
+		},
+		"behaviours": {
+			"name": "behaviours",
+			"type": "string",
+			"typeLabel": "string",
+			"required": false,
+			"id": "behaviours",
+			"order": 11
 		}
 	}
 }

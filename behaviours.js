@@ -8,7 +8,7 @@ var utils = require('./utils');
 var Sync = require('./sync');
 
 var webmodule = require('./webmodule');
-var webModuleClass = require('./class');
+var direct = require('./direct');
 var comments = require('./comment');
 
 function BehavioursProcessor() {
@@ -51,6 +51,10 @@ function BehavioursProcessor() {
                                         }
 
                                         var node = webmodule.process(ast, behaviour);
+
+                                        direct.process(node, behaviour);
+
+                                        console.log(behaviour);
 
                                         if (behaviour.name) {
                                             behaviours[behaviour.name] = behaviour;

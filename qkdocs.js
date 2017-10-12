@@ -49,10 +49,12 @@ var config = file.readModuleConfig(function(bower, main) {
                     log.info("  Processed " + count(result.components) + " components");
                     log.info("  Processed " + count(result.services) + " services");
                     log.info("  Processed " + count(result.bindings) + " bindings");
+                    log.info("  Processed " + count(result.bindings) + " behaviours");
 
                     result.components = JSON.stringify(result.components);
                     result.services = JSON.stringify(result.services);
                     result.bindings = JSON.stringify(result.bindings);
+                    result.behaviours = JSON.stringify(result.behaviours);
 
                     rest.getDoc(result.name, function(err, data) {
                         data = JSON.parse(data);

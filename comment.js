@@ -60,7 +60,7 @@ function CommentsProcessor() {
                                     result = self.commandBinding(commandStr, node, result);
                                     break;
                                 case "@behaviour":
-                                    result = self.commandBehaviour(commandStr, node, result);
+                                    self.commandBehaviour(commandStr, node, result);
                                     break;
                                 case "@observable":
                                     self.commandObservable(commandStr, node, result);
@@ -293,8 +293,6 @@ function CommentsProcessor() {
         result.description = command.trim();
 
         log.debug("Found command Behaviour");
-
-        return result;
     }
 
 
