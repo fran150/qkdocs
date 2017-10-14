@@ -89,13 +89,21 @@
 			"id": "bindings",
 			"order": 10
 		},
+		"formatters": {
+			"name": "formatters",
+			"type": "string",
+			"typeLabel": "string",
+			"required": false,
+			"id": "formatters",
+			"order": 11
+		},
 		"behaviours": {
 			"name": "behaviours",
 			"type": "string",
 			"typeLabel": "string",
 			"required": false,
 			"id": "behaviours",
-			"order": 11
+			"order": 12
 		}
 	}
 }

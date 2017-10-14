@@ -8,7 +8,7 @@ function CommentsProcessor() {
     this.process = function(node, result, rootName) {
         rootName = rootName || "";
 
-        var baseResult = result;
+        var baseResult = new Array(result);
 
         log.tab();
 
@@ -58,9 +58,15 @@ function CommentsProcessor() {
                                     break;
                                 case "@binding":
                                     result = self.commandBinding(commandStr, node, result);
+                                    baseResult.push(result);
                                     break;
                                 case "@behaviour":
-                                    self.commandBehaviour(commandStr, node, result);
+                                    result = self.commandBehaviour(commandStr, node, result);
+                                    baseResult.push(result);
+                                    break;
+                                case "@formatter":
+                                    result = self.commandFormatter(commandStr, node, result);
+                                    baseResult.push(result);
                                     break;
                                 case "@observable":
                                     self.commandObservable(commandStr, node, result);
@@ -90,7 +96,7 @@ function CommentsProcessor() {
                                     self.commandSignature(commandStr, node, result);
                                     break;
                                 case "@end":
-                                    result = baseResult;
+                                    result = baseResult.pop();
                                     break;
                             }
                         }
@@ -145,7 +151,7 @@ function CommentsProcessor() {
 
         property.description = command.trim();
 
-        result.properties[rootName] = property;
+        result.properties[property.name] = property;
 
         log.debug("Found command Property: " + rootName);
 
@@ -211,7 +217,7 @@ function CommentsProcessor() {
             parameter.type = type[0];
             parameter.description = command.trim();
 
-            result.parameters[parameterName] = parameter;
+            result.parameters[parameter.name] = parameter;
 
             log.debug("Found command Parameter: " + parameterName);
 
@@ -277,24 +283,49 @@ function CommentsProcessor() {
         let match = command.match(/(\w+)/);
         command = command.replace(match[0], "").trim();
 
-        result.name = match[0];
-        result.description = command.trim();
+        var name = match[0];
+
+        result[name] = {
+            name: name,
+            description: command.trim()
+        };
 
         log.debug("Found command Binding");
 
-        return result;
+        return result[name];
     }
 
     this.commandBehaviour = function(command, node, result) {
         let match = command.match(/(\w+)/);
         command = command.replace(match[0], "").trim();
 
-        result.name = match[0];
-        result.description = command.trim();
+        var name = match[0];
+
+        result[name] = {
+            name: name,
+            description: command.trim()
+        };
 
         log.debug("Found command Behaviour");
+
+        return result[name];
     }
 
+    this.commandFormatter = function(command, node, result) {
+        let match = command.match(/(\w+)/);
+        command = command.replace(match[0], "").trim();
+
+        var name = match[0];
+
+        result[name] = {
+            name: name,
+            description: command.trim()
+        };
+
+        log.debug("Found command Formatter");
+
+        return result[name];
+    }
 
     this.commandExposed = function(command, node, result) {
         var cmd = command.trim();

@@ -8,7 +8,7 @@ var utils = require('./utils');
 var Sync = require('./sync');
 
 var webmodule = require('./webmodule');
-var webModuleClass = require('./class');
+var direct = require('./direct');
 var comments = require('./comment');
 
 function BindingsProcessor() {
@@ -23,7 +23,11 @@ function BindingsProcessor() {
 
         log.tab();
 
-        var bindings = {};
+        if (!main.bindings) {
+            main.bindings = {};
+        }
+
+        var bindings = main.bindings;
 
         new Sync(function(sync) {
             let f = sync.wait();
@@ -44,17 +48,13 @@ function BindingsProcessor() {
                                         var ast = esprima.parse(content, { range: true, tokens: true, comment: true });
                                         ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
 
-                                        var binding = {};
-
                                         if (ast.leadingComments) {
-                                            comments.process(ast, binding);
+                                            comments.process(ast, bindings);
                                         }
 
-                                        var node = webmodule.process(ast, binding);
+                                        var node = webmodule.process(ast, bindings);
 
-                                        if (binding.name) {
-                                            bindings[binding.name] = binding;
-                                        }
+                                        direct.process(node, bindings);
 
                                         w();
                                     });

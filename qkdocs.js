@@ -12,6 +12,7 @@ var componentsProcessor = require('./components');
 var servicesProcessor = require('./services');
 var bindingsProcessor = require('./bindings');
 var behavioursProcessor = require('./behaviours');
+var formattersProcessor = require('./formatters');
 
 log.verbose("Running in verbose mode...");
 log.debug("Running in debug mode...");
@@ -46,28 +47,32 @@ var config = file.readModuleConfig(function(bower, main) {
         servicesProcessor.process(main, result, function(result) {
             bindingsProcessor.process(main, result, function(result) {
                 behavioursProcessor.process(main, result, function(result) {
-                    log.info("  Processed " + count(result.components) + " components");
-                    log.info("  Processed " + count(result.services) + " services");
-                    log.info("  Processed " + count(result.bindings) + " bindings");
-                    log.info("  Processed " + count(result.bindings) + " behaviours");
+                    formattersProcessor.process(main, result, function(result) {
+                        log.info("  Processed " + count(result.components) + " components");
+                        log.info("  Processed " + count(result.services) + " services");
+                        log.info("  Processed " + count(result.bindings) + " bindings");
+                        log.info("  Processed " + count(result.behaviours) + " behaviours");
+                        log.info("  Processed " + count(result.formatters) + " formatters");
 
-                    result.components = JSON.stringify(result.components);
-                    result.services = JSON.stringify(result.services);
-                    result.bindings = JSON.stringify(result.bindings);
-                    result.behaviours = JSON.stringify(result.behaviours);
+                        result.components = JSON.stringify(result.components);
+                        result.services = JSON.stringify(result.services);
+                        result.bindings = JSON.stringify(result.bindings);
+                        result.behaviours = JSON.stringify(result.behaviours);
+                        result.formatters = JSON.stringify(result.formatters);
 
-                    rest.getDoc(result.name, function(err, data) {
-                        data = JSON.parse(data);
+                        rest.getDoc(result.name, function(err, data) {
+                            data = JSON.parse(data);
 
-                        if (data.length > 0) {
-                            rest.updateDoc(data[0].id, JSON.stringify(result), function(err, data) {
-                                finish(err, "Updated", data);
-                            });
-                        } else {
-                            rest.saveDoc(JSON.stringify(result), function(err, data) {
-                                finish(err, "Saved", data);
-                            });
-                        }
+                            if (data.length > 0) {
+                                rest.updateDoc(data[0].id, JSON.stringify(result), function(err, data) {
+                                    finish(err, "Updated", data);
+                                });
+                            } else {
+                                rest.saveDoc(JSON.stringify(result), function(err, data) {
+                                    finish(err, "Saved", data);
+                                });
+                            }
+                        });
                     });
                 });
             });

@@ -11,7 +11,7 @@ var webmodule = require('./webmodule');
 var direct = require('./direct');
 var comments = require('./comment');
 
-function BehavioursProcessor() {
+function FormattersProcessor() {
     var self = this;
 
     this.process = function(main, result, callback) {
@@ -19,42 +19,42 @@ function BehavioursProcessor() {
 
         log.tab();
 
-        log.verbose("Check if \"Behaviours\" folder exists...");
+        log.verbose("Check if \"Formatters\" folder exists...");
 
         log.tab();
 
-        if (!main.behaviours) {
-            main.behaviours = {};
+        if (!main.formatters) {
+            main.formatters = {};
         }
 
-        var behaviours = main.behaviours;
+        var formatters = main.formatters;
 
         new Sync(function(sync) {
             let f = sync.wait();
-            fs.stat('src/behaviours', function(err, status) {
+            fs.stat('src/formatters', function(err, status) {
                 if (!err) {
                     if (status.isDirectory()) {
-                        log.verbose("\"behaviours\" folder found...");
+                        log.verbose("\"formatters\" folder found...");
 
                         let d = sync.wait();
-                        fs.readdir('src/behaviours', function(errDir, filenames) {
+                        fs.readdir('src/formatters', function(errDir, filenames) {
                             if (!errDir) {
                                 filenames.forEach(function(filename) {
-                                    log.verbose("Processing behaviour (file : " + filename + ")");
+                                    log.verbose("Processing formatters (file : " + filename + ")");
 
                                     let w = sync.wait();
 
-                                    fs.readFile("src/behaviours/" + filename, "utf8", function(errFile, content) {
+                                    fs.readFile("src/formatters/" + filename, "utf8", function(errFile, content) {
                                         var ast = esprima.parse(content, { range: true, tokens: true, comment: true });
                                         ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
 
                                         if (ast.leadingComments) {
-                                            comments.process(ast, behaviours);
+                                            comments.process(ast, formatters);
                                         }
 
-                                        var node = webmodule.process(ast, behaviours);
+                                        var node = webmodule.process(ast, formatters);
 
-                                        direct.process(node, behaviours);
+                                        direct.process(node, formatters);
 
                                         w();
                                     });
@@ -72,7 +72,7 @@ function BehavioursProcessor() {
             log.untab();
             log.untab();
 
-            result.behaviours = behaviours;
+            result.formatters = formatters;
             callback(result);
         });
     }
@@ -80,4 +80,4 @@ function BehavioursProcessor() {
 
 }
 
-module.exports = new BehavioursProcessor();
+module.exports = new FormattersProcessor();
